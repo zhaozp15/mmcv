@@ -39,6 +39,7 @@ from .optimizer import (OPTIMIZER_BUILDERS, OPTIMIZERS,
                         build_optimizer_constructor)
 from .priority import Priority, get_priority
 from .utils import get_host_info, get_time_str, obj_from_dict, set_random_seed
+from .checkpoint import _load_checkpoint_with_name
 
 __all__ = [
     'BaseRunner', 'Runner', 'EpochBasedRunner', 'IterBasedRunner', 'LogBuffer',
@@ -67,3 +68,5 @@ __all__ = [
     'SegmindLoggerHook', 'LinearAnnealingMomentumUpdaterHook',
     'LinearAnnealingLrUpdaterHook'
 ]
+
+__all__ += ['_load_checkpoint_with_name']

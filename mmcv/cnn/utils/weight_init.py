@@ -475,16 +475,18 @@ class PretrainedInit(object):
         map_location (str): map tensors into proper locations.
     """
 
-    def __init__(self, checkpoint, prefix=None, map_location=None):
+    def __init__(self, checkpoint, prefix=None, name=None, map_location=None):
         self.checkpoint = checkpoint
         self.prefix = prefix
+        self.name = name
         self.map_location = map_location
 
     def __call__(self, module):
         from mmcv.runner import (_load_checkpoint_with_prefix, load_checkpoint,
                                  load_state_dict)
+        from mmcv.runner import _load_checkpoint_with_name
         logger = get_logger('mmcv')
-        if self.prefix is None:
+        if self.prefix is None and self.name is None:
             print_log(f'load model from: {self.checkpoint}', logger=logger)
             load_checkpoint(
                 module,
@@ -492,12 +494,20 @@ class PretrainedInit(object):
                 map_location=self.map_location,
                 strict=False,
                 logger=logger)
-        else:
+        elif self.prefix:
             print_log(
                 f'load {self.prefix} in model from: {self.checkpoint}',
                 logger=logger)
             state_dict = _load_checkpoint_with_prefix(
                 self.prefix, self.checkpoint, map_location=self.map_location)
+            load_state_dict(module, state_dict, strict=False, logger=logger)
+        
+        elif self.name:
+            print_log(
+                f'load {self.prefix} in model from: {self.checkpoint}',
+                logger=logger)
+            state_dict = _load_checkpoint_with_name(
+                self.name, self.checkpoint, map_location=self.map_location)
             load_state_dict(module, state_dict, strict=False, logger=logger)
 
         if hasattr(module, '_params_init_info'):

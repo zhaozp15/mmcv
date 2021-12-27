@@ -514,6 +514,38 @@ def _load_checkpoint_with_prefix(prefix, filename, map_location=None):
     return state_dict
 
 
+def _load_checkpoint_with_name(name, filename, map_location=None):
+    """Load partial pretrained model with specific name.
+    只加载checkpoint中包含指定字符串的weight
+    TODO: 输入name改为names，接受一组字符串
+
+    Args:
+        name (str): The name of sub-module.
+        filename (str): Accept local filepath, URL, ``torchvision://xxx``,
+            ``open-mmlab://xxx``. Please refer to ``docs/model_zoo.md`` for
+            details.
+        map_location (str | None): Same as :func:`torch.load`. Default: None.
+
+    Returns:
+        dict or OrderedDict: The loaded checkpoint.
+    """
+
+    checkpoint = _load_checkpoint(filename, map_location=map_location)
+
+    if 'state_dict' in checkpoint:
+        state_dict = checkpoint['state_dict']
+    else:
+        state_dict = checkpoint
+
+    state_dict = {
+        k: v
+        for k, v in state_dict.items() if name in k
+    }
+
+    assert state_dict, f'{name} is not in the pretrained model'
+    return state_dict
+
+
 def load_checkpoint(model,
                     filename,
                     map_location=None,
